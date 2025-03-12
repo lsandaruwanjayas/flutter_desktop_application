@@ -1,6 +1,6 @@
-//Put it all together
-
 import 'package:flutter/material.dart';
+import 'package:github/github.dart';                               // Add this import
+//integrate the GitHub client 
 import 'github_oauth_credentials.dart';
 import 'src/github_login.dart';
 
@@ -33,16 +33,23 @@ class MyHomePage extends StatelessWidget {
   Widget build(BuildContext context) {
     return GithubLoginWidget(
       builder: (context, httpClient) {
-        return Scaffold(
-          appBar: AppBar(
-            title: Text(title),
-            elevation: 2,
-          ),
-          body: const Center(
-            child: Text(
-              'You are logged in to GitHub!',
-            ),
-          ),
+        return FutureBuilder<CurrentUser>(                         // Modify from here
+          future: viewerDetail(httpClient.credentials.accessToken),
+          builder: (context, snapshot) {
+            return Scaffold(
+              appBar: AppBar(
+                title: Text(title),
+                elevation: 2,
+              ),
+              body: Center(
+                child: Text(
+                  snapshot.hasData
+                      ? 'Hello ${snapshot.data!.login}!'
+                      : 'Retrieving viewer login details...',
+                ),
+              ),
+            );
+          },                                                       // to here.
         );
       },
       githubClientId: githubClientId,
@@ -51,3 +58,8 @@ class MyHomePage extends StatelessWidget {
     );
   }
 }
+
+Future<CurrentUser> viewerDetail(String accessToken) async {       // Add from here
+  final gitHub = GitHub(auth: Authentication.withToken(accessToken));
+  return gitHub.users.getCurrentUser();
+}                                                                  // to here.
