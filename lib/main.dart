@@ -1,8 +1,10 @@
+//integrate window_to_front into your lib/main.dart
 import 'package:flutter/material.dart';
 import 'package:github/github.dart';                               // Add this import
 //integrate the GitHub client 
 import 'github_oauth_credentials.dart';
 import 'src/github_login.dart';
+import 'package:window_to_front/window_to_front.dart';    // Add this
 
 void main() {
   runApp(const MyApp());
@@ -33,6 +35,7 @@ class MyHomePage extends StatelessWidget {
   Widget build(BuildContext context) {
     return GithubLoginWidget(
       builder: (context, httpClient) {
+        WindowToFront.activate();                        // and this.
         return FutureBuilder<CurrentUser>(                         // Modify from here
           future: viewerDetail(httpClient.credentials.accessToken),
           builder: (context, snapshot) {
