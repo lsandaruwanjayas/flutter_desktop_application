@@ -6,6 +6,9 @@ import 'github_oauth_credentials.dart';
 import 'src/github_login.dart';
 import 'package:window_to_front/window_to_front.dart';    // Add this
 
+// integrate GitHubSummary into your lib/main.dart
+import 'src/github_summary.dart';                                  // Add this import
+
 void main() {
   runApp(const MyApp());
 }
@@ -31,30 +34,22 @@ class MyHomePage extends StatelessWidget {
   const MyHomePage({super.key, required this.title});
   final String title;
 
+
   @override
   Widget build(BuildContext context) {
     return GithubLoginWidget(
       builder: (context, httpClient) {
-        WindowToFront.activate();                        // and this.
-        return FutureBuilder<CurrentUser>(                         // Modify from here
-          future: viewerDetail(httpClient.credentials.accessToken),
-          builder: (context, snapshot) {
-            return Scaffold(
-              appBar: AppBar(
-                title: Text(title),
-                elevation: 2,
-              ),
-              body: Center(
-                child: Text(
-                  snapshot.hasData
-                      ? 'Hello ${snapshot.data!.login}!'
-                      : 'Retrieving viewer login details...',
-                ),
-              ),
-            );
-          },                                                       // to here.
+        WindowToFront.activate();
+        return Scaffold(                                           // Modify from here
+          appBar: AppBar(
+            title: Text(title),
+            elevation: 2,
+          ),
+          body: GitHubSummary(
+            gitHub: _getGitHub(httpClient.credentials.accessToken),
+          ),
         );
-      },
+      },                                                           // to here.
       githubClientId: githubClientId,
       githubClientSecret: githubClientSecret,
       githubScopes: githubScopes,
@@ -62,7 +57,6 @@ class MyHomePage extends StatelessWidget {
   }
 }
 
-Future<CurrentUser> viewerDetail(String accessToken) async {       // Add from here
-  final gitHub = GitHub(auth: Authentication.withToken(accessToken));
-  return gitHub.users.getCurrentUser();
+GitHub _getGitHub(String accessToken) {                            // Modify from here
+  return GitHub(auth: Authentication.withToken(accessToken));
 }                                                                  // to here.
